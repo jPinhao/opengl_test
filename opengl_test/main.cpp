@@ -1,14 +1,10 @@
+#include "stdafx.h"
+
 #include <iostream>
-
-// GLEW
-#define GLEW_STATIC
-#include <GL/glew.h>
-
-// GLFW
-#include <GLFW/glfw3.h>
 
 #include "GLSLshader.h"
 #include "Triangle.h"
+#include "Texture.h"
 
 // Function prototypes
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
@@ -55,7 +51,6 @@ int main()
 
     
     Triangle tri;
-    Triangle tri2;
 
     // Game loop
     while (!glfwWindowShouldClose(window))
@@ -69,7 +64,6 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         render(tri);
-        render(tri2);
 
         // Swap the screen buffers
         glfwSwapBuffers(window);
@@ -92,10 +86,26 @@ void render(const Triangle& tri)
 {
     // 2. Use our shader program when we want to render an object
     glUseProgram(tri.shader.ID());
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tri.texture1.ID());
+    glUniform1i(glGetUniformLocation(tri.shader.ID(), "objTexture1"), 0);
+
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, tri.texture2.ID());
+    glUniform1i(glGetUniformLocation(tri.shader.ID(), "objTexture2"), 1);
+
     glBindVertexArray(tri.VAO);
+
+    //double timeValue = glfwGetTime();
+    //GLfloat greenVal = ((GLfloat)sin(timeValue) / 2) + 0.5;
+    //GLint vertexColorLocation = glGetUniformLocation(tri.shader.ID(), "ourColor");
+    //glUniform4f(vertexColorLocation, 0.f, greenVal, 0.f, 1.f);
+
     // 3.Draw
-    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, tri.numIndices(), GL_UNSIGNED_INT, 0);
     //glDrawArrays(GL_TRIANGLES, 0, 3);
     //unbind vertex array
     glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
